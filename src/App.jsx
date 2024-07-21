@@ -79,15 +79,15 @@ function App() {
         <Box>
           <WatchedSummary watched={watched} />
           <WatchedMovieList watched={watched} />
-          <StarRating
+          {/* <StarRating
             maxRating={5}
             className='test'
             messages={['Terrible', 'Bad', 'Okay', 'Good', 'Amazing']}
             defaultRating={2}
             onSetRating={setMovieRating}
-          />
-          <StarRating onSetRating={setMovieRating} />
-          <p>This movie was rated {movieRating} stars</p>
+          /> */}
+          {/* <StarRating onSetRating={setMovieRating} />
+          <p>This movie was rated {movieRating} stars</p> */}
         </Box>
       </Main>
     </>
