@@ -21,8 +21,8 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 
   color: var(--color-text);
   background-color: var(--color-background-900);
@@ -58,12 +58,17 @@ body {
   position: relative;
 }
 
-.loader {
+.loader,
+.beforeMovieSearch {
   text-align: center;
   text-transform: uppercase;
   font-size: 2rem;
   font-weight: 600;
   margin: 4.8rem;
+}
+.beforeMovieSearch {
+  text-transform: none;
+  font-size: 1.5rem;
 }
 
 .error {
@@ -89,6 +94,10 @@ body {
   font-weight: 600;
   color: #fff;
 }
+.search__form {
+  display: flex;
+  align-items: center;
+}
 
 .search {
   justify-self: center;
@@ -112,6 +121,17 @@ body {
   outline: none;
   box-shadow: 0 2.4rem 2.4rem rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
+}
+
+.search__button {
+  margin-left: -7rem;
+  background-color: transparent;
+  color: inherit;
+  border-radius: 1rem;
+  display: inline-block;
+  padding: 1rem;
+  cursor: pointer;
+  z-index: 10;
 }
 
 .num-results {

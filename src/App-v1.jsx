@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import StarRating from './components/StarRating';
 
@@ -52,99 +52,16 @@ const tempWatchedData = [
 const average = arr =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
-const KEY = '5e1ac1dc';
-const fetchUrl = `http://www.omdbapi.com/?apikey=${KEY}&`;
-
 function App() {
-  const [movies, setMovies] = useState([]);
-  const [query, setQuery] = useState('');
-  const [watched, setWatched] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [selectedId, setSelectedId] = useState('');
+  const [movies, setMovies] = useState(tempMovieData);
+  const [watched, setWatched] = useState(tempWatchedData);
 
-  const tempQuery = 'beekeeper';
-
-  /*
-  useEffect(function () {
-    console.log('After initial render');
-  }, []);
-
-  useEffect(function () {
-    console.log('After every render');
-  });
-
-  useEffect(
-    function () {
-      console.log('After query update render');
-    },
-    [query]
-  );
-
-  console.log('During render');
-  */
-
-  useEffect(
-    function () {
-      async function fetchMovies() {
-        try {
-          setIsLoading(true);
-          setError('');
-          const res = await fetch(`${fetchUrl}s=${query}`);
-
-          if (!res.ok)
-            throw new Error('Something went wrong with fetching movies!');
-
-          const data = await res.json();
-          console.log(data);
-          if (data.Response === 'False') throw new Error(data.Error);
-          setMovies(data.Search);
-        } catch (err) {
-          console.error(err.message);
-          setError(err.message);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-
-      if (query.length < 3) {
-        setMovies([]);
-        setError('');
-        return;
-      }
-
-      fetchMovies();
-    },
-    [query]
-  );
-
-  useEffect(
-    function () {
-      async function fetchDetails(id) {
-        try {
-          setIsLoading(true);
-          const res = await fetch(`${fetchUrl}i=${id}`);
-          console.log(res);
-          if (!res.ok) throw new Error('Invalid imdbID!');
-          const data = await res.json();
-          console.log(data);
-        } catch (err) {
-          console.error(err.message);
-        } finally {
-          // setSelectedId('');
-          setIsLoading(false);
-        }
-      }
-      fetchDetails(selectedId);
-    },
-    [selectedId]
-  );
-
+  const [movieRating, setMovieRating] = useState(0);
   return (
     <>
       <NavBar>
         <Logo />
-        <Search query={query} setQuery={setQuery} />
+        <Search />
         <NumResults movies={movies} />
       </NavBar>
       <Main>
@@ -157,28 +74,11 @@ function App() {
             </>
           }></Box> */}
         <Box>
-          {!query && (
-            <p className='beforeMovieSearch'>
-              Insert text in searchbox to see the result here ...
-            </p>
-          )}
-          {!isLoading && !error && (
-            <MovieList
-              movies={movies}
-              selectedId={selectedId}
-              setSelectedId={setSelectedId}
-            />
-          )}
-          {isLoading && <Loader />}
-          {error && <ErrorMessage message={error} />}
+          <MovieList movies={movies} />
         </Box>
         <Box>
-          {!selectedId && (
-            <>
-              <WatchedSummary watched={watched} />
-              <WatchedMovieList watched={watched} />
-            </>
-          )}
+          <WatchedSummary watched={watched} />
+          <WatchedMovieList watched={watched} />
           {/* <StarRating
             maxRating={5}
             className='test'
@@ -191,18 +91,6 @@ function App() {
         </Box>
       </Main>
     </>
-  );
-}
-
-function Loader() {
-  return <p className='loader'>Loading...</p>;
-}
-
-function ErrorMessage({ message }) {
-  return (
-    <p className='error'>
-      <span>⛔️</span> {message}
-    </p>
   );
 }
 
@@ -219,33 +107,23 @@ function Logo() {
   );
 }
 
-function Search({ query, setQuery }) {
+function Search() {
+  const [query, setQuery] = useState('');
   return (
-    <form
-      className='search__form'
-      onSubmit={e => {
-        e.preventDefault();
-        // console.log(e.target.query.value);
-        setQuery(e.target.query.value);
-        e.target.query.value = '';
-      }}>
-      <input
-        className='search'
-        type='text'
-        placeholder='Search movies...'
-        name='query'
-        // value={query}
-        // onChange={e=>setQuery(e.target.value)}
-      />
-      <button className='search__button'>Search</button>
-    </form>
+    <input
+      className='search'
+      type='text'
+      placeholder='Search movies...'
+      value={query}
+      onChange={e => setQuery(e.target.value)}
+    />
   );
 }
 
 function NumResults({ movies }) {
   return (
     <p className='num-results'>
-      Found <strong>{movies?.length || 0}</strong> results
+      Found <strong>{movies.length}</strong> results
     </p>
   );
 }
@@ -293,24 +171,19 @@ function Button({ onClick, children }) {
   );
 }
 
-function MovieList({ movies, selectedId, setSelectedId }) {
+function MovieList({ movies }) {
   return (
-    <ul className='list list-movies'>
+    <ul className='list'>
       {movies?.map(movie => (
-        <Movie
-          movie={movie}
-          selectedId={selectedId}
-          setSelectedId={setSelectedId}
-          key={movie.imdbID}
-        />
+        <Movie movie={movie} key={movie.imdbID} />
       ))}
     </ul>
   );
 }
 
-function Movie({ movie, selectedId, setSelectedId }) {
+function Movie({ movie }) {
   return (
-    <li onClick={() => setSelectedId(movie.imdbID)}>
+    <li>
       <img src={movie.Poster} alt={`${movie.Title} poster`} />
       <h3>{movie.Title}</h3>
       <div>
