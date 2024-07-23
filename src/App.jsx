@@ -104,11 +104,16 @@ function App() {
 
   useEffect(
     function () {
+      //- serve nel caso avessi richieste multiple - stoppa la precedente e inizia la nuova (vedere l'oggetto in fetch, l'errore in catch, e la funzione di clean up)
+      const controller = new AbortController();
+
       async function fetchMovies() {
         try {
           setIsLoading(true);
           setError('');
-          const res = await fetch(`${fetchUrl}s=${query}`);
+          const res = await fetch(`${fetchUrl}s=${query}`, {
+            signal: controller.signal,
+          });
 
           if (!res.ok)
             throw new Error('Something went wrong with fetching movies!');
@@ -117,9 +122,10 @@ function App() {
           if (data.Response === 'False') throw new Error(data.Error);
           // console.log(data.Search);
           setMovies(data.Search);
+          setError('');
         } catch (err) {
           console.error(err.message);
-          setError(err.message);
+          if (err.name !== 'AbortError') setError(err.message);
         } finally {
           setIsLoading(false);
         }
@@ -132,6 +138,10 @@ function App() {
       }
 
       fetchMovies();
+
+      return function () {
+        controller.abort();
+      };
     },
     [query]
   );
@@ -398,6 +408,19 @@ function MovieDetails({
       getMovieDetails();
     },
     [selectedId]
+  );
+
+  useEffect(
+    function () {
+      if (!title) return;
+      document.title = `Movie | ${title}`;
+
+      return function () {
+        document.title = 'usePopcorn';
+        console.log(`Clean up effect for movie ${title}`);
+      };
+    },
+    [title]
   );
 
   return (
