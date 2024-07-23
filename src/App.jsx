@@ -396,7 +396,7 @@ function MovieDetails({
           if (!res.ok) throw new Error('Invalid imdbID!');
           const data = await res.json();
 
-          console.log(data);
+          // console.log(data);
           setMovie(data);
         } catch (err) {
           console.error(err.message);
@@ -417,7 +417,7 @@ function MovieDetails({
 
       return function () {
         document.title = 'usePopcorn';
-        console.log(`Clean up effect for movie ${title}`);
+        // console.log(`Clean up effect for movie ${title}`);
       };
     },
     [title]
