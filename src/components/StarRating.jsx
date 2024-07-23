@@ -30,6 +30,7 @@ function StarRating({
   messages = [],
   defaultRating = 0,
   onSetRating,
+  onRating,
 }) {
   const textStyle = {
     lineHeight: '1',
@@ -37,13 +38,13 @@ function StarRating({
     color,
     fontSize: `${size / 1.5}px`,
   };
-  const [rating, setRating] = useState(defaultRating);
+  const [rating, setRating] = useState(onRating || defaultRating);
   const [tempRating, setTempRating] = useState(0);
 
   function handleRating(rating) {
     setRating(rating);
     onSetRating(rating);
-    console.log(rating);
+    // console.log(rating);
   }
 
   return (

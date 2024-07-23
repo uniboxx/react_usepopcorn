@@ -49,8 +49,14 @@ const tempWatchedData = [
   },
 ];
 
-const average = arr =>
-  arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
+function average(arr) {
+  return (
+    Math.round(
+      arr.reduce((acc, cur, i, arr) => acc + (cur ? cur : 0) / arr.length, 0) *
+        10
+    ) / 10
+  );
+}
 
 const KEY = '5e1ac1dc';
 const fetchUrl = `//www.omdbapi.com/?apikey=${KEY}&`;
@@ -70,6 +76,10 @@ function App() {
 
   function handleCloseMovie() {
     setSelectedId(null);
+  }
+
+  function handleAddWatched(movie) {
+    setWatched(watched => [...watched, movie]);
   }
 
   /*
@@ -166,6 +176,9 @@ function App() {
             <MovieDetails
               selectedId={selectedId}
               onCloseMovie={handleCloseMovie}
+              onAddWatched={handleAddWatched}
+              watched={watched}
+              setWatched={setWatched}
             />
           )}
           {/* <StarRating
@@ -311,9 +324,22 @@ function Movie({ movie, handleSelectedMovie }) {
   );
 }
 
-function MovieDetails({ selectedId, onCloseMovie }) {
+function MovieDetails({
+  selectedId,
+  onCloseMovie,
+  onAddWatched,
+  watched,
+  setWatched,
+}) {
   const [movie, setMovie] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [userRating, setUserRating] = useState(0);
+
+  const isWatched =
+    watched.length !== 0 && watched.find(movie => movie.imdbID === selectedId);
+  const watchedMovieUserRating = watched.find(
+    movie => movie.imdbID === selectedId
+  )?.userRating;
 
   const {
     Title: title,
@@ -327,6 +353,29 @@ function MovieDetails({ selectedId, onCloseMovie }) {
     Director: director,
     Genre: genre,
   } = movie;
+
+  function handleAdd() {
+    const newWatchedMovie = {
+      imdbID: selectedId,
+      title,
+      year,
+      poster,
+      imdbRating: +imdbRating,
+      runtime: Number(runtime.split(' ')[0]),
+      userRating,
+    };
+
+    if (isWatched) removeWatched();
+    onAddWatched(newWatchedMovie);
+    onCloseMovie();
+  }
+
+  function removeWatched() {
+    const watchedNotToEdit = watched.filter(
+      movie => movie.imdbID !== selectedId
+    );
+    setWatched(watchedNotToEdit);
+  }
 
   useEffect(
     function () {
@@ -378,7 +427,19 @@ function MovieDetails({ selectedId, onCloseMovie }) {
           </header>
           <section>
             <div className='rating'>
-              <StarRating maxRating={10} size={24} />
+              <StarRating
+                maxRating={10}
+                size={24}
+                onSetRating={setUserRating}
+                onRating={watchedMovieUserRating || 0}
+              />
+              {(userRating > 0 || watchedMovieUserRating) && (
+                <button className='btn-add' onClick={handleAdd}>
+                  {userRating > 0 && !isWatched
+                    ? '+ Add to list'
+                    : 'Change rating'}
+                </button>
+              )}
             </div>
             <p>
               <em>{plot}</em>
@@ -433,22 +494,23 @@ function WatchedMovieList({ watched }) {
 }
 
 function WatchedMovie({ movie }) {
+  const { poster, title, imdbRating, userRating, runtime } = movie;
   return (
     <li>
-      <img src={movie.Poster} alt={`${movie.Title} poster`} />
-      <h3>{movie.Title}</h3>
+      <img src={poster} alt={`${title} poster`} />
+      <h3>{title}</h3>
       <div>
         <p>
           <span>⭐️</span>
-          <span>{movie.imdbRating}</span>
+          <span>{imdbRating}</span>
         </p>
         <p>
           <span>🌟</span>
-          <span>{movie.userRating}</span>
+          <span>{userRating}</span>
         </p>
         <p>
           <span>⏳</span>
-          <span>{movie.runtime} min</span>
+          <span>{runtime ? runtime + ' min' : 'N/A'}</span>
         </p>
       </div>
     </li>
