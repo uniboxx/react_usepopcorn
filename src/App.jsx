@@ -50,12 +50,9 @@ const tempWatchedData = [
 ];
 
 function average(arr) {
-  return (
-    Math.round(
-      arr.reduce((acc, cur, i, arr) => acc + (cur ? cur : 0) / arr.length, 0) *
-        10
-    ) / 10
-  );
+  return +arr
+    .reduce((acc, cur, i, arr) => acc + (cur ? cur : 0) / arr.length, 0)
+    .toFixed(2);
 }
 
 const KEY = '5e1ac1dc';
@@ -80,6 +77,10 @@ function App() {
 
   function handleAddWatched(movie) {
     setWatched(watched => [...watched, movie]);
+  }
+
+  function handleDeleteWatched(id) {
+    setWatched(watched => watched.filter(movie => movie.imdbID !== id));
   }
 
   /*
@@ -170,15 +171,18 @@ function App() {
           {!selectedId ? (
             <>
               <WatchedSummary watched={watched} />
-              <WatchedMovieList watched={watched} />
+              <WatchedMovieList
+                watched={watched}
+                onDeleteWatched={handleDeleteWatched}
+              />
             </>
           ) : (
             <MovieDetails
               selectedId={selectedId}
               onCloseMovie={handleCloseMovie}
               onAddWatched={handleAddWatched}
+              onDeleteWatched={handleDeleteWatched}
               watched={watched}
-              setWatched={setWatched}
             />
           )}
           {/* <StarRating
@@ -328,15 +332,15 @@ function MovieDetails({
   selectedId,
   onCloseMovie,
   onAddWatched,
+  onDeleteWatched,
   watched,
-  setWatched,
 }) {
   const [movie, setMovie] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [userRating, setUserRating] = useState(0);
 
-  const isWatched =
-    watched.length !== 0 && watched.find(movie => movie.imdbID === selectedId);
+  const isWatched = watched.map(movie => movie.imdbID).includes(selectedId);
+
   const watchedMovieUserRating = watched.find(
     movie => movie.imdbID === selectedId
   )?.userRating;
@@ -365,16 +369,10 @@ function MovieDetails({
       userRating,
     };
 
-    if (isWatched) removeWatched();
+    if (isWatched) onDeleteWatched(selectedId);
+
     onAddWatched(newWatchedMovie);
     onCloseMovie();
-  }
-
-  function removeWatched() {
-    const watchedNotToEdit = watched.filter(
-      movie => movie.imdbID !== selectedId
-    );
-    setWatched(watchedNotToEdit);
   }
 
   useEffect(
@@ -483,18 +481,22 @@ function WatchedSummary({ watched }) {
   );
 }
 
-function WatchedMovieList({ watched }) {
+function WatchedMovieList({ watched, onDeleteWatched }) {
   return (
     <ul className='list'>
       {watched.map(movie => (
-        <WatchedMovie movie={movie} key={movie.imdbID} />
+        <WatchedMovie
+          movie={movie}
+          key={movie.imdbID}
+          onDeleteWatched={onDeleteWatched}
+        />
       ))}
     </ul>
   );
 }
 
-function WatchedMovie({ movie }) {
-  const { poster, title, imdbRating, userRating, runtime } = movie;
+function WatchedMovie({ movie, onDeleteWatched }) {
+  const { poster, title, imdbRating, userRating, runtime, imdbID } = movie;
   return (
     <li>
       <img src={poster} alt={`${title} poster`} />
@@ -512,6 +514,9 @@ function WatchedMovie({ movie }) {
           <span>⏳</span>
           <span>{runtime ? runtime + ' min' : 'N/A'}</span>
         </p>
+        <button className='btn-delete' onClick={() => onDeleteWatched(imdbID)}>
+          X
+        </button>
       </div>
     </li>
   );
