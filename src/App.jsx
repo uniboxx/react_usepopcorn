@@ -137,6 +137,7 @@ function App() {
         return;
       }
 
+      handleCloseMovie();
       fetchMovies();
 
       return function () {
@@ -422,6 +423,18 @@ function MovieDetails({
     },
     [title]
   );
+
+  useEffect(function () {
+    function callback(e) {
+      if (e.code === 'Escape') {
+        onCloseMovie();
+      }
+    }
+    document.addEventListener('keydown', callback);
+    return function () {
+      document.removeEventListener('keydown', callback);
+    };
+  }, []);
 
   return (
     <div className='details'>
