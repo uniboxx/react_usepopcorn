@@ -15,10 +15,11 @@ function App() {
   const [movies, setMovies] = useState([]);
   const [query, setQuery] = useState('');
 
+  const localStore = JSON.parse(localStorage.getItem('watched'));
+
   //- è possibile passare a useState anche una callback oltre ad un valore
-  const [watched, setWatched] = useState(() =>
-    JSON.parse(localStorage.getItem('watched'))
-  );
+  const [watched, setWatched] = useState(() => localStore || []);
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedId, setSelectedId] = useState(null);
@@ -328,7 +329,7 @@ function MovieDetails({
   const [isLoading, setIsLoading] = useState(false);
   const [userRating, setUserRating] = useState(0);
 
-  const isWatched = watched.map(movie => movie.imdbID).includes(selectedId);
+  const isWatched = watched?.map(movie => movie.imdbID).includes(selectedId);
 
   const watchedMovieUserRating = watched.find(
     movie => movie.imdbID === selectedId
@@ -466,9 +467,9 @@ function MovieDetails({
 }
 
 function WatchedSummary({ watched }) {
-  const avgImdbRating = average(watched.map(movie => movie.imdbRating));
-  const avgUserRating = average(watched.map(movie => movie.userRating));
-  const avgRuntime = average(watched.map(movie => movie.runtime));
+  const avgImdbRating = average(watched?.map(movie => movie.imdbRating));
+  const avgUserRating = average(watched?.map(movie => movie.userRating));
+  const avgRuntime = average(watched?.map(movie => movie.runtime));
 
   return (
     <div className='summary'>
@@ -498,7 +499,7 @@ function WatchedSummary({ watched }) {
 function WatchedMovieList({ watched, onDeleteWatched }) {
   return (
     <ul className='list'>
-      {watched.map(movie => (
+      {watched?.map(movie => (
         <WatchedMovie
           movie={movie}
           key={movie.imdbID}
