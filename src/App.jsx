@@ -53,7 +53,7 @@ const average = arr =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 const KEY = '5e1ac1dc';
-const fetchUrl = `http://www.omdbapi.com/?apikey=${KEY}&`;
+const fetchUrl = `//www.omdbapi.com/?apikey=${KEY}&`;
 
 function App() {
   const [movies, setMovies] = useState([]);
